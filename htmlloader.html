@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Eaglercraft Launcher</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body, html {
+      width: 100%;
+      height: 100%;
+      font-family: system-ui, -apple-system, sans-serif;
+      background-color: #121212;
+      color: #ffffff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+    }
+    
+    #drop-area {
+      border: 2px dashed #4a5568;
+      border-radius: 12px;
+      padding: 40px;
+      text-align: center;
+      background-color: #1a202c;
+      transition: all 0.2s ease;
+      max-width: 450px;
+      width: 90%;
+      cursor: pointer;
+    }
+
+    #drop-area.highlight {
+      border-color: #48bb78;
+      background-color: #2f855a22;
+    }
+
+    h2 {
+      margin-bottom: 12px;
+      font-size: 1.5rem;
+    }
+
+    p {
+      color: #a0aec0;
+      margin-bottom: 20px;
+      font-size: 0.95rem;
+    }
+
+    input[type="file"] {
+      display: none;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 10px 20px;
+      background-color: #38a169;
+      color: white;
+      border-radius: 6px;
+      font-weight: 600;
+      transition: background-color 0.2s;
+    }
+
+    .btn:hover {
+      background-color: #2f855a;
+    }
+
+    iframe {
+      width: 100vw;
+      height: 100vh;
+      border: none;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="drop-area">
+    <h2>Upload Eaglercraft</h2>
+    <p>Drag and drop your <strong>.html</strong> file here or click below to launch.</p>
+    <label for="fileElem" class="btn">Select File</label>
+    <input type="file" id="fileElem" accept=".html">
+  </div>
+
+  <iframe id="game-frame"></iframe>
+
+  <script>
+    const dropArea = document.getElementById('drop-area');
+    const fileInput = document.getElementById('fileElem');
+    const iframe = document.getElementById('game-frame');
+
+    // Highlight drop area when dragging over
+    ['dragenter', 'dragover'].forEach(eventName => {
+      dropArea.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        dropArea.classList.add('highlight');
+      }, false);
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+      dropArea.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        dropArea.classList.remove('highlight');
+      }, false);
+    });
+
+    // Handle dropped files
+    dropArea.addEventListener('drop', (e) => {
+      const dt = e.dataTransfer;
+      const files = dt.files;
+      if (files.length > 0) {
+        handleFile(files[0]);
+      }
+    });
+
+    // Handle file selected via button
+    fileInput.addEventListener('change', (e) => {
+      if (e.target.files.length > 0) {
+        handleFile(e.target.files[0]);
+      }
+    });
+
+    // Load file into iframe
+    function handleFile(file) {
+      if (!file.name.endsWith('.html')) {
+        alert('Please upload a valid .html file.');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        // Hide upload UI, show full screen iframe
+        dropArea.style.display = 'none';
+        iframe.style.display = 'block';
+
+        // Load content into iframe
+        const doc = iframe.contentWindow.document;
+        doc.open();
+        doc.write(e.target.result);
+        doc.close();
+      };
+
+      reader.readAsText(file);
+    }
+  </script>
+</body>
+</html>
